@@ -1,0 +1,488 @@
+---
+title: "R Notebook"
+# output: html_notebook
+---
+
+```{r}
+# function to check if package is present
+install_if_not_present <- function(pkg_name){
+  if(!requireNamespace(pkg_name, quietly = TRUE)){
+    install.packages(pkg_name)
+  }
+}
+
+install_if_not_present("plyr")
+install_if_not_present("data.table")
+install_if_not_present("pbapply")
+install_if_not_present("dplyr")
+install_if_not_present("purrr")
+install_if_not_present("readr")
+install_if_not_present("progress")
+install_if_not_present("tidyverse")
+install_if_not_present("readr")
+library(plyr)
+library(data.table)
+library(pbapply)
+library(dplyr)
+library(purrr)
+library(readr)
+library(progress)
+library(tidyverse)
+library(readr)
+
+```
+```{r}
+# zip_path <- "./data/csse_covid_19_daily_reports.zip"
+# 
+# # Temporären Ordner für das Entpacken der ZIP-Datei erstellen
+# temp_dir <- tempfile()
+# dir.create(temp_dir)
+# 
+# # ZIP-Datei entpacken
+# unzip(zip_path, exdir = temp_dir)
+# 
+# # Alle CSV-Dateien im temporären Ordner auflisten
+# files <- list.files(temp_dir, pattern = "\\.csv$", full.names = TRUE)
+# 
+# # Fortschrittsbalken initialisieren
+# pboptions(type = "timer")
+# 
+# # Funktion, um das Datum aus dem Dateinamen zu extrahieren
+# extract_date <- function(file_name) {
+#   date_part <- gsub(".*(\\d{4}-\\d{2}-\\d{2}).csv", "\\1", basename(file_name))
+#   as.Date(date_part)
+# }
+# 
+# # Daten einlesen und eine Datumsspalte hinzufügen
+# list_data <- pblapply(files, function(file) {
+#   data <- read_csv(file)
+#   date_from_filename <- extract_date(file)
+#   mutate(data, Datum = date_from_filename)
+# })
+# 
+# # Alle DataFrames zusammenführen
+# final_data <- bind_rows(list_data)
+# 
+# # Größe des DataFrames in MB berechnen
+# dataframe_size <- object.size(final_data) / (1024^2)
+# print(paste("Die Größe des DataFrames ist:", dataframe_size, "MB"))
+# 
+# # Temporären Ordner löschen, wenn er nicht mehr benötigt wird
+# unlink(temp_dir, recursive = TRUE)
+
+```
+```{r}
+# # Pfad zur ZIP-Datei
+# zip_path <- "./data/csse_covid_19_daily_reports.zip"
+# 
+# # Temporären Ordner für das Entpacken der ZIP-Datei erstellen
+# temp_dir <- tempfile()
+# dir.create(temp_dir)
+# 
+# # ZIP-Datei entpacken
+# unzip(zip_path, exdir = temp_dir)
+# 
+# # Überprüfen, ob Dateien entpackt wurden
+# unpacked_files <- list.files(temp_dir)
+# print(unpacked_files)
+
+```
+```{r}
+# 
+# # Pfad zur ZIP-Datei
+# zip_path <- "./data/csse_covid_19_daily_reports.zip"
+# 
+# # Temporären Ordner für das Entpacken der ZIP-Datei erstellen
+# temp_dir <- tempfile()
+# dir.create(temp_dir)
+# 
+# # ZIP-Datei entpacken
+# unzip(zip_path, exdir = temp_dir)
+# 
+# # Unterordner im entpackten Verzeichnis finden
+# sub_dirs <- list.dirs(temp_dir, full.names = TRUE, recursive = FALSE)
+# if (length(sub_dirs) == 0) {
+#   stop("Kein Unterordner im ZIP-Archiv gefunden.")
+# }
+# sub_dir <- sub_dirs[1]
+# 
+# # Alle CSV-Dateien im Unterordner auflisten
+# files <- list.files(sub_dir, pattern = "\\.csv$", full.names = TRUE)
+# 
+# # Fortschrittsbalken initialisieren
+# pboptions(type = "timer")
+# 
+# # Funktion, um das Datum aus dem Dateinamen zu extrahieren
+# extract_date <- function(file_name) {
+#   date_part <- gsub(".*(\\d{2}-\\d{2}-\\d{4}).*", "\\1", basename(file_name))
+#   as.Date(date_part, format="%m-%d-%Y")
+# }
+# 
+# # Funktion, um die Daten zu lesen und zu bereinigen
+# read_and_clean <- function(file) {
+#   data <- read_csv(file, show_col_types = FALSE)
+#   date_from_filename <- extract_date(file)
+#   if (is.na(date_from_filename)) {
+#     stop(paste("Datumskonvertierung fehlgeschlagen für Datei:", file))
+#   }
+#   # Konvertieren Sie alle Datum-/Zeit-Spalten in das gleiche Format, z.B. als character
+#   data$Last_Update <- as.character(data$Last_Update)
+#   mutate(data, Datum = date_from_filename)
+# }
+# 
+# # Daten einlesen und eine Datumsspalte hinzufügen
+# list_data <- pblapply(files, read_and_clean)
+# 
+# # Alle DataFrames zusammenführen
+# final_data <- bind_rows(list_data)
+# 
+# # Größe des DataFrames in MB berechnen
+# dataframe_size <- object.size(final_data) / (1024^2)
+# print(paste("Die Größe des DataFrames ist:", dataframe_size, "MB"))
+# 
+# # Temporären Ordner löschen, wenn er nicht mehr benötigt wird
+# unlink(temp_dir, recursive = TRUE)
+
+```
+```{r}
+# # Pfad zum Zip-Ordner
+# zip_path <- "./data/csse_covid_19_daily_reports.zip"
+# 
+# # Entpacke den Zip-Ordner in ein temporäres Verzeichnis
+# temp_dir <- tempdir()
+# unzip(zip_path, exdir = temp_dir)
+# 
+# # Liste aller CSV-Dateien im Unterordner des entpackten Zip-Ordners
+# files <- list.files(path = temp_dir, pattern = "\\.csv$", recursive = TRUE, full.names = TRUE)
+# 
+# # Funktion, um das Datum aus dem Dateinamen zu extrahieren
+# extract_date_from_filename <- function(filename) {
+#   date_part <- gsub(".*(\\d{2}-\\d{2}-\\d{4}).csv", "\\1", basename(filename))
+#   as.Date(date_part, format = "%d-%m-%Y")
+# }
+# 
+# # Funktion, um eine einzelne Datei zu lesen und das Datum hinzuzufügen
+# read_csv_with_date <- function(file) {
+#   df <- read_csv(file, col_types = cols())
+# 
+#   # Überprüfen, ob die Spalte 'Last Update' existiert und keine leeren Werte hat
+#   if (Last_Update %in% names(df) && nrow(df) > 0) {
+#     df <- df %>% mutate(Last_Update = as.character(Last_Update))
+#   } else {
+#     warning(paste("Spalte 'Last Update' fehlt oder ist leer in Datei:", file))
+#   }
+# 
+#   date <- extract_date_from_filename(file)
+#   df$date <- date
+#   return(df)
+# }
+# 
+# # read_csv_with_date <- function(file) {
+# #   # Bestimmen der Spalten, die gelesen werden sollen. 'Last Update' wird übersprungen
+# #   col_types <- cols(`Last Update` = col_skip())
+# #   df <- read_csv(file, col_types = col_types)
+# #   
+# #   date <- extract_date_from_filename(file)
+# #   df$date <- date
+# #   return(df)
+# # }
+# 
+# # Lese alle Dateien und füge sie zusammen, zeige Fortschrittsbalken an
+# all_data <- pblapply(files, read_csv_with_date) %>% bind_rows()
+# 
+# # Größe des Dataframes in MB ausgeben
+# dataframe_size <- object.size(all_data) / (1024^2)
+# print(paste("Größe des Dataframes:", dataframe_size, "MB"))
+# 
+# # Das resultierende Dataframe anzeigen (optional)
+# print(all_data)
+# 
+# # Aufräumen und temporäres Verzeichnis löschen
+# unlink(temp_dir, recursive = TRUE)
+```
+
+Da sich das Einlesen mehrerer csv-Dateien aus einem Zip-Ordner und dem Zusammenführen in ein einziges Data Frame in R schwierig gestatltet, wird dieser Teil der Aufgabe mit Python gelöst. Nach dem Einlesen wird das Data Frame auf die nötigen Spalten gekürzt und in eine csv-Datei abgespeichert. Diese neue csv-Datei kann nun mit R eingelesen und weiterverarbeitet werden.
+```{r}
+# Einlesen der csv-Datei
+df <- read.csv("COVID19_SHORT.csv")
+
+dataframe_size1 <- object.size(df) / (1024^2)
+print(paste("Größe des Dataframes:", dataframe_size1, "MB"))
+
+```
+Eine Übersicht über das Data Frame verschaffen.
+```{r}
+head(df)
+```
+```{r}
+glimpse(df)
+```
+Die Spalte Date ist im Datentyp Charakter vorhanden. Dies sollte in ein Datumsformat konvertiert werden.
+Weiter sollten die beiden Spalten Confirmed und Deaths in integer konvertiert werden, da für diese Variablen keine Nachkommastellen zulässig sind.
+
+### 3. Datumformat anpassen
+```{r}
+df <- df %>% 
+  mutate(Date = ymd(Date)) %>% 
+  mutate_at(vars(Confirmed, Deaths), as.integer)
+
+dataframe_size2 <- object.size(df) / (1024^2)
+print(paste("Größe des Dataframes:", dataframe_size2, "MB"))
+
+```
+```{r}
+dataframe_size1-dataframe_size2
+```
+
+Die Ersparnis der Dateigrösse durch die Konvertierung der Datumsspalte in ein Datumsformat beträgt 32.8 bytes
+```{r}
+glimpse(df)
+```
+Wenn nun in beiden Spalten Confirmed und Deaths NA oder 0 vorkommen, sagt die Observation nichts aus. Daher werden alle diese Observationen aus dem Data Frame entfernt.
+```{r}
+df <- df %>% 
+  filter(!((is.na(Confirmed) & is.na(Deaths)) | (Confirmed == 0 & Deaths == 0)))
+```
+
+
+Das Data Frame soll nun nach der Datumsspalte sortiert werden. Danach wird überprüft, ob für jeden Tag zwischen Startdatum und Enddatum mindestens ein Eintrag vorhanden ist.
+```{r}
+df <- df %>% 
+  arrange(Date)
+
+# Überprüfen, ob alle Daten zwischen Start- und Enddatum vorhanden sind
+date_sequence <- seq.Date(from = min(df$Date), to = max(df$Date), by = "day")
+all_dates_present <- all(date_sequence %in% df$Date) 
+print(all_dates_present)
+
+```
+Es sind alle Tage zwischen Start- und Enddatum mindestens einmal vorhanden.
+
+### 4. Spaltennamen für Land und Provinz zusammenführen
+Nun werden die verschiedenen Versionen für Land und Provinz zusammengeführt. Zuerst wird aber nach Fällen gesucht, die in beiden Versionen Werte vorhanden haben. Falls dies der Fall ist, muss eine neue Strategie überlegt werden.
+```{r}
+df %>% 
+  filter(!is.na(Country_Region), 
+         !is.na(Country.Region))
+```
+Bei der Spalte Country Region sind keine Werte in beiden Spalten gleichzeitig vorhanden.
+Wie sieht es bei der Provinz aus?
+```{r}
+df %>% 
+  filter(!is.na(Province_State), 
+         !is.na(Province.State))
+```
+Hier sind ebenfalls keine Werte gleichzeitig in beiden Spalten vorhanden.
+Nun können die jeweiligen Werte aus Country.Region in die Spalte Country_Region, sowie Province.State in Province_State überführt werden.
+```{r}
+df <- df %>% 
+  mutate(Country_Region = if_else(is.na(Country_Region), Country.Region, Country_Region)) %>% 
+  mutate(Province_State = if_else(is.na(Province_State), Province.State, Province_State))
+```
+Die nun nicht mehr benötigten Spalten werden aus dem Data Frame entfernt.
+```{r}
+df <- df %>% 
+  select(Date, Country_Region, Province_State, Confirmed, Deaths)
+
+dataframe_size3 <- object.size(df) / (1024^2)
+print(paste("Größe des Dataframes:", dataframe_size3, "MB"))
+```
+```{r}
+dataframe_size2-dataframe_size3
+```
+
+
+### 5. Provinzen aufaggregieren
+Da die Provinz-Level aktuell nicht interessieren sollen die Erkrankungs- und Todesfallzahlen pro Land summarisch angegeben werden und die danach nicht mehr benötigten Spalten entfernt.
+```{r}
+df <- df %>% 
+  group_by(Date, Country_Region) %>% 
+  summarise(Confirmed = sum(Confirmed, na.rm = TRUE), Deaths = sum(Deaths, na.rm = TRUE)) %>% 
+  ungroup()
+
+dataframe_size4 <- object.size(df) / (1024^2)
+print(paste("Größe des Dataframes:", dataframe_size4, "MB"))
+
+```
+```{r}
+dataframe_size3-dataframe_size4
+```
+Durch die Aggregation wurden 130.9 bytes eingespart.
+
+### 6. Datenfehler identifizieren
+Liste aller Ländernamen, welche im Data Frame vorhanden sind
+```{r}
+# unique_countries <- unique(df$Country_Region)
+unique_countries <- df %>% 
+  select(Country_Region) %>% 
+  distinct(Country_Region) %>% 
+  arrange(Country_Region) %>% 
+  pull(Country_Region)
+
+print(unique_countries)
+```
+Es wird versucht, mittels Distanzmatrix ähnliche Versionen der Länder zu finden.
+```{r}
+
+distances <- adist(unique_countries)
+threshold <- nchar(unique_countries) * 0.3
+similar_countries <- which(distances < threshold, arr.ind = TRUE)
+similar_countries <- similar_countries[similar_countries[,1] != similar_countries[,2], ]
+similar_country_pairs <- unique(t(apply(similar_countries, 1, function(idx) unique_countries[idx])))
+print(similar_country_pairs)
+```
+Erstellen einer Funktion für diesen Ablauf.
+```{r}
+get_similar_text_pairs <- function(df, threshold_num) {
+  
+  unique_text <- df %>% 
+    arrange(Country_Region) %>% 
+    distinct(Country_Region) %>% 
+    pull(Country_Region)
+  
+  distances <- adist(unique_text)
+  threshold <- nchar(unique_text) * threshold_num
+  similar_text <- which(distances < threshold, arr.ind = TRUE)
+  similar_text <- similar_text[similar_text[,1] != similar_text[,2], ]
+  similar_text_pairs <- unique(t(apply(similar_text, 1, function(idx) unique_text[idx])))
+  
+  return(similar_text_pairs)
+}
+```
+Test der Funktion
+```{r}
+print(get_similar_text_pairs(df, 0.3))
+```
+
+Anhand dieser Übersicht kann ein Name-Mapping durchgeführt werden. Damit wird mittels einer Mapping-Tabelle mit dem Format 'Alter Name' = 'Neuer Name' das Land umbenannt.
+
+```{r}
+name_mapping <- c('Viet Nam' = 'Vietnam',
+                  'Korea, South' = 'South Korea',
+                  'Republic of Korea' = 'South Korea',
+                  'Bahamas, The' = 'The Bahamas',
+                  'Taiwan*' = 'Taiwan',
+                  ' Azerbaijan' = 'Azerbaijan',
+                  'Cabo Verde' = 'Cape Verde',
+                  'Korea, North' = 'North Korea'
+                  )
+```
+Nun erstellen wir eine Funktion für die Umbenennung der Ländernamen, welche die Mapping-Tabelle verwendet.
+```{r}
+rename_country <- function(country_name, mapping) {
+  if (country_name %in% names(mapping)) {
+    return(mapping[country_name])
+  } else {
+    return(country_name)
+  }
+}
+```
+Nun können die Länder umbenannt werden.
+```{r}
+df <- df %>% 
+  mutate(Country_Region = sapply(Country_Region, rename_country, mapping = name_mapping))
+```
+
+Es wird nochmals überprüft, ob die Länder immer noch in verschiedenen Versionen vorhanden sind.
+```{r}
+print(get_similar_text_pairs(df, 0.35))
+```
+neues Mapping
+```{r}
+name_mapping <- c('Hong Kong SAR' = 'Hong Kong',
+                  'Mainland China' = 'China',
+                  'Czechia' = 'Czech Republic',
+                  'Gambia, The' = 'Gambia',
+                  'Iran (Islamic Republic of)' = 'Iran',
+                  'Russian Federation' = 'Russia',
+                  'occupied Palestinian territory' = 'Palestine'
+                  )
+df <- df %>% 
+  mutate(Country_Region = sapply(Country_Region, rename_country, mapping = name_mapping))
+
+df %>% 
+  select(Country_Region) %>% 
+  distinct(Country_Region) %>% 
+  arrange(Country_Region)
+```
+#### 7. Kategorien setzen
+Land in kategoriale Variable umformen und Grösse des Data Frames überprüfen.
+```{r}
+df <- df %>% 
+  mutate(Country_Region = as.factor(Country_Region))
+
+dataframe_size5 <- object.size(df) / (1024^2)
+print(paste("Größe des Dataframes:", dataframe_size5, "MB"))
+
+```
+```{r}
+dataframe_size4 - dataframe_size5
+```
+### 8. Tägliche neue Fallzahlen berechnen
+
+Es werden zwei neue Spalten erstellt, ’Confirmed_Reported’ und ’Deaths_Reported’. Dabei wird jeweils für das Land die Differenz zum Vortag berechnet. 
+```{r}
+
+df <- df %>% 
+  arrange(Date) %>% 
+  group_by(Country_Region) %>% 
+  mutate(Confirmed_Reported = Confirmed - lag(Confirmed, default = 0),
+         Deaths_Reported = Deaths - lag(Deaths, default = 0))
+```
+Die Daten enthalten einige sprunghafte Änderungen (aufgrund von Konventionsänderungen, Fehlern,
+etc.), was teilweise zu stark negativen Werten in der Anzahl der neuen Fälle führt. Ersetze als einfache
+erste Strategie einfach mal alle negativen Werte mit Null.
+
+```{r}
+df <- df %>% 
+  mutate(Confirmed_Reported = ifelse(Confirmed_Reported >= 0, Confirmed_Reported, 0)) %>% 
+  mutate(Deaths_Reported = ifelse(Deaths_Reported >= 0, Deaths_Reported, 0))
+
+```
+### 9. Anreicherung mit Zusatzinformationen
+
+Nur mit absoluten Zahlen ist es schwierig, einzelne Länder miteinander zu vergleichen, da sie enorm
+verschiedene Bevölkerungsstärken haben. Du möchtest daher gerne im Anschluss die Anzahl Fälle pro
+10’000 Personen berechnen. Dazu brauchst du aber zuerst einmal die Bevölkerungszahlen der einzelnen
+Länder. Ausserdem möchtest du für die Visualisierung im letzten Teil gleich noch zu jedem Land den
+üblichen dreistelligen Ländercode hinzufügen.
+Python bietet für beide Probleme jeweils ein brauchbares Modul:
+• pycountry für die Identifikation eines dreistelligen Ländercodes mit einem Land (das hier als String
+übergeben werden kann und nicht perfekt matchen muss)
+• pypopulation für die Bevölkerungsgrösse eines Landes (über den vorher bestimmten dreistelligen
+Ländercode) im Jahr 2020. Natürlich hat sich die Bevölkerungszahl in den Jahren 2021, 2022 und
+2023 geändert, wir nehmen der Einfachheit halber aber einfach die aus 2020, da sie wohl ungefähr
+gleichgeblieben ist.
+In R gibt es sicher auch entsprechende Bibliotheken, die du ausfindig machen kannst. Falls du keine
+vernünftige Alternative findest, kannst du diesen Teil der Minichallenge auch in Python lösen und das
+resultierende Dataframe dann wieder in R einlesen und joinen.
+Erstelle konkret ein Dataframe mit den Spalten ’Country_Region’, ’Country_Code’ und ’Country_Population’,
+das die gesuchten Informationen für möglichst jedes Land enthält und joine es an dein Dataframe aus
+den vorhergenden Teilaufgaben.
+
+
+
+### 10. Berechnung relativer täglicher Fallzahlen
+Berechne nun die relativen täglichen Neuerkrankungen und neuen Todesfälle pro 10’000 Personen der
+Bevölkerung im Land.
+
+### 11. Graphische Darstellung und Glättung
+Stelle die zeitliche Entwicklung der Neuerkrankungen pro 10’000 Personen der Bevölkerung für die
+Schweiz, Italien und Deutschland über die ganze Zeitperiode in einem gemeinsamen Plot graphisch
+dar.
+Es fällt auf, dass die Darstellung zwischen den Tagen extrem stark schwankt und nicht wirklich interpretierbar
+aussieht. Erstelle daher zwei neue Spalten ’Confirmed_Reported_per_10000_MA14’ und
+’Deaths_Reported_per_10000_MA14’, die den Inhalt der ursprünglichen Spalten (Neuerkrankungen und
+Todefallzahlen) enthalten, aber über 14 Tage mit einem Moving Average geglättet sind.
+Visualisiere die zeitliche Entwicklung noch einmal mit diesen neuen Spalten. Sieht die graphische
+Darstellung nun interpretierbarer aus? Visualisiere auch nur die Entwicklung während der ersten Welle
+zwischem März und Juni 2020.
+
+
+
+### 12. Freiwillig: Graphische Darstellung und Animation auf Chloropleth-Karte
+Die zeitliche Entwicklung der Fallzahlen kann auch geographisch visualisiert werden. Dazu bietet sich ein
+Chloropleth, eine Karte, wo jedem Land eine individuelle Farbe passend zu seinen aktuellen Fallzahlen
+zugeordnet ist. Versuche zum Beispiel mit Plotly Express oder Plotly eine solche Karte für ein fixes
+Datum zu erstellen und überlege dir, wie du die Karte animieren könntest (siehe Beispiel in Abbildung 1).
+
