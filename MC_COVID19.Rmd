@@ -395,7 +395,8 @@ name_mapping <- c('Hong Kong SAR' = 'Hong Kong',
                   'Gambia, The' = 'Gambia',
                   'Iran (Islamic Republic of)' = 'Iran',
                   'Russian Federation' = 'Russia',
-                  'occupied Palestinian territory' = 'Palestine'
+                  'occupied Palestinian territory' = 'Palestine',
+                  'US' = 'United States'
                   )
 df <- df %>% 
   mutate(Country_Region = sapply(Country_Region, rename_country, mapping = name_mapping))
@@ -460,11 +461,45 @@ Erstelle konkret ein Dataframe mit den Spalten ’Country_Region’, ’Country_
 das die gesuchten Informationen für möglichst jedes Land enthält und joine es an dein Dataframe aus
 den vorhergenden Teilaufgaben.
 
+```{r}
+install_if_not_present('wbstats')
+install_if_not_present('countrycode')
+library(wbstats)
+library(countrycode)
+```
 
+Ländercodes abrufen
+```{r}
+country_distinct <- df %>% 
+  select(Country_Region) %>% 
+  distinct(Country_Region) %>% 
+  pull(Country_Region)
+country_codes <- countrycode::codelist
+df$Country_Code <- countrycode(df$Country_Region, 
+                               origin = "country.name",
+                               destination = "iso3c",
+                               nomatch = NULL)
+```
+
+Bevölkerungsdaten abrufen
+```{r}
+population_data <- wbstats::wb_data(indicator = 'SP.POP.TOTL', date = 2020)
+population_data <- population_data %>% 
+  filter(year(date) == 2020) %>% 
+  select(iso3c, SP.POP.TOTL)
+df <- right_join(df, population_data, by = c("Country_Code" = "iso3c"))
+df <- df %>% 
+  rename(pop_total = SP.POP.TOTL)
+```
 
 ### 10. Berechnung relativer täglicher Fallzahlen
 Berechne nun die relativen täglichen Neuerkrankungen und neuen Todesfälle pro 10’000 Personen der
 Bevölkerung im Land.
+```{r}
+df$Cases_per_10000 <- round((df$Confirmed / df$pop_total)*10000, 6)
+df$Deaths_per_10000 <- round((df$Deaths / df$pop_total)*10000, 6)
+```
+
 
 ### 11. Graphische Darstellung und Glättung
 Stelle die zeitliche Entwicklung der Neuerkrankungen pro 10’000 Personen der Bevölkerung für die
@@ -477,12 +512,199 @@ Todefallzahlen) enthalten, aber über 14 Tage mit einem Moving Average geglätte
 Visualisiere die zeitliche Entwicklung noch einmal mit diesen neuen Spalten. Sieht die graphische
 Darstellung nun interpretierbarer aus? Visualisiere auch nur die Entwicklung während der ersten Welle
 zwischem März und Juni 2020.
+```{r}
+install_if_not_present("zoo")
+library(zoo)
+```
+```{r}
+# Data Frame für die Schweiz, Italien, Deutschland mit 14-Tage moving average
+df_ch_it_de <- df %>% 
+  filter(Country_Code %in% c("CHE", "ITA", "DEU")) %>% 
+  arrange(Country_Region, Date) %>% 
+  group_by(Country_Region) %>% 
+  mutate(Confirmed_Reported_per_10000_MA14 = rollmean(Cases_per_10000, 14, fill = NA, align = 'right'),
+        (Deaths_Reported_per_10000_MA14 = rollmean(Deaths_per_10000, 14, fill = NA, align = 'right')))
+```
 
-
+Visualisieren in ggplot2
+```{r}
+ggplot(df_ch_it_de, aes(x = Date, y = Confirmed_Reported_per_10000_MA14, color = Country_Region)) +
+  geom_line(na.rm = TRUE) +
+  labs(title = "COVID-19 Neuerkrankungen pro 10'000 Personen",
+       subtitle = "berechnet mit einem 14-Tage Durchschnitt",
+       x = "Datum",
+       y = "Neuerkrankungen pro 10'000 Personen") +
+  theme_minimal() +
+  scale_color_brewer(palette = "Set1") +
+  theme(legend.title = element_blank())
+```
 
 ### 12. Freiwillig: Graphische Darstellung und Animation auf Chloropleth-Karte
 Die zeitliche Entwicklung der Fallzahlen kann auch geographisch visualisiert werden. Dazu bietet sich ein
 Chloropleth, eine Karte, wo jedem Land eine individuelle Farbe passend zu seinen aktuellen Fallzahlen
 zugeordnet ist. Versuche zum Beispiel mit Plotly Express oder Plotly eine solche Karte für ein fixes
-Datum zu erstellen und überlege dir, wie du die Karte animieren könntest (siehe Beispiel in Abbildung 1).
+Datum zu erstellen und überlege dir, wie du die Karte animieren könntest.
+
+```{r}
+install_if_not_present("plotly")
+library(plotly)
+```
+
+Daten für ein fixes Datum extrahieren
+```{r}
+df_fixed_date <- df %>% 
+  filter(Date == '2022-10-01')
+```
+
+Erstellen einer Choroplethenkarte
+```{r}
+# Datum für die Lesbarkeit umformatieren
+val_fixed_date <- df_fixed_date %>% 
+  select(Date) %>% 
+  distinct(Date) %>% 
+  pull(Date)
+date_title <- format(as.Date(val_fixed_date[1]), "%d.%m.%Y")
+text_title <- paste("bestätigte Neuinfektionen pro 10'000 Personen am ", date_title)
+
+fig <- df_fixed_date %>% 
+  plot_geo(locationmode = 'country names') %>% 
+  add_trace(
+    z = ~Cases_per_10000, text = ~Country_Region,
+    locations = ~Country_Region,
+    colors = 'Reds',
+    marker = list(line = list(color = 'rgb(180, 180, 180)', width = 0.5))
+  ) %>% 
+  colorbar(title = "") %>% 
+  layout(
+    title = paste("COVID-19 \n", text_title),
+    geo = list(
+      showframe = FALSE,
+      showcoastline = FALSE,
+      projection = list(type = 'natural earth')
+    )
+  )
+
+fig
+```
+
+Die Karte soll so interaktiv gestaltet werden, dass alle Daten angezeigt und ausgewählt werden können.
+```{r}
+# # die Grundkarte bleibt dieselbe
+# fig_all <- plot_geo(df, locationmode = 'country names') %>% 
+#   add_trace(
+#     z = ~Cases_per_10000, text = ~Country_Region,
+#     locations = ~Country_Region,
+#     colors = 'Reds',
+#     marker = list(line = list(color = 'rgb(180, 180, 180)', width = 0.5))
+#   ) %>% 
+#   colorbar(title = "") %>% 
+#   layout(
+#     title = paste("COVID-19 \n", text_title),
+#     geo = list(
+#       showframe = FALSE,
+#       showcoastline = FALSE,
+#       projection = list(type = 'natural earth')
+#     )
+#   ) %>% 
+#   # Ergänzung für die Animation des Datums
+#   animation_slider(
+#     currentvalue = list(prefix = "Datum: "),
+#     len = 0.9,
+#     xanchor = "left",
+#     yanchor = "top"
+#   ) %>% 
+#   animation_opts(
+#     frame = 100,
+#     redraw = TRUE
+#   ) 
+# 
+# # Daten für die Animation hinzufügen
+# dates <- unique(df$Date)
+# for(date in dates) {
+#   day_data <- df %>% 
+#     filter(Date == date)
+#   fig_all <- fig_all %>% 
+#     add_trace(
+#       z = ~Cases_per_10000, 
+#       locations = ~Country_Code,
+#       frame = ~as.character(Date)
+#     )
+# }
+```
+```{r}
+# fig <- df %>%
+#   plot_geo(locationmode = 'ISO-3') %>%
+#   add_trace(
+#     z = ~Cases_per_10000, 
+#     text = ~Country_Region, 
+#     locations = ~Country_Code, 
+#     color = ~Cases_per_10000, 
+#     colors = 'Reds',
+#     marker = list(line = list(color = 'rgb(180,180,180)', width = 0.5))
+#   ) %>%
+#   colorbar(title = 'Fälle pro 10.000 Personen') %>%
+#   layout(
+#     title = 'COVID-19 Fallzahlen pro 10.000 Personen',
+#     geo = list(
+#       showframe = FALSE, 
+#       showcoastlines = FALSE,
+#       projection = list(type = 'natural earth')
+#     )
+#   ) %>%
+#   animation_slider(
+#     currentvalue = list(prefix = "Datum: "),
+#     len = 0.9,
+#     xanchor = "left",
+#     yanchor = "top"
+#   ) %>%
+#   animation_opts(
+#     frame = 100,
+#     redraw = TRUE
+#   )
+# 
+# # Fügen Sie die Daten für die Animation hinzu
+# dates <- unique(df$Date)
+# for(date in dates) {
+#   day_data <- df %>% filter(Date == date)
+#   fig <- fig %>% add_trace(
+#     z = ~Cases_per_10000, 
+#     locations = ~Country_Code,
+#     frame = ~as.character(Date)
+#   )
+# }
+# 
+# fig
+```
+
+```{r}
+
+
+# Angenommen, Ihr DataFrame 'df' enthält die Spalten 'Date' (im Format 'yyyy-mm-dd'), 
+# 'Country_Region', 'Country_Code' (ISO 3166-1 alpha-3 country codes), und 'Cases_per_10000'.
+
+# Stellen Sie sicher, dass das Datum im richtigen Format vorliegt
+df$Date <- as.Date(df$Date, format = "%Y-%m-%d")
+
+# Erstellen Sie die Basis für die Choroplethenkarte
+fig <- plot_ly(df, locations = ~Country_Code, z = ~Cases_per_10000, 
+               text = ~Country_Region, colors = "Reds", type = 'choropleth', 
+               hoverinfo = "text+z+location", marker = list(line = list(color = 'rgb(255,255,255)', width = 2)))
+
+# Fügen Sie die Animation hinzu
+fig <- fig %>% animation_opts(frame = 100, redraw = TRUE) %>%
+  animation_slider(currentvalue = list(prefix = "Datum: "), 
+                   steps = list(list(method = "animate", args = list(list("frame"), list(mode = "immediate", frame = 100, redraw = TRUE)))))
+
+
+# Fügen Sie Frames für jedes Datum hinzu
+dates <- unique(df$Date)
+for (date in dates) {
+  day_data <- df %>% filter(Date == date)
+  fig <- fig %>% add_frame(data = day_data, name = ~as.character(date))
+}
+
+# Anzeigen der Karte
+fig
+
+```
 
