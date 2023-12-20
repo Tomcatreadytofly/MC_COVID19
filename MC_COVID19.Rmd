@@ -1,5 +1,5 @@
 ---
-title: "R Notebook"
+title: "MC COVID-19"
 # output: html_notebook
 ---
 
@@ -31,176 +31,6 @@ library(tidyverse)
 library(readr)
 
 ```
-```{r}
-# zip_path <- "./data/csse_covid_19_daily_reports.zip"
-# 
-# # Temporären Ordner für das Entpacken der ZIP-Datei erstellen
-# temp_dir <- tempfile()
-# dir.create(temp_dir)
-# 
-# # ZIP-Datei entpacken
-# unzip(zip_path, exdir = temp_dir)
-# 
-# # Alle CSV-Dateien im temporären Ordner auflisten
-# files <- list.files(temp_dir, pattern = "\\.csv$", full.names = TRUE)
-# 
-# # Fortschrittsbalken initialisieren
-# pboptions(type = "timer")
-# 
-# # Funktion, um das Datum aus dem Dateinamen zu extrahieren
-# extract_date <- function(file_name) {
-#   date_part <- gsub(".*(\\d{4}-\\d{2}-\\d{2}).csv", "\\1", basename(file_name))
-#   as.Date(date_part)
-# }
-# 
-# # Daten einlesen und eine Datumsspalte hinzufügen
-# list_data <- pblapply(files, function(file) {
-#   data <- read_csv(file)
-#   date_from_filename <- extract_date(file)
-#   mutate(data, Datum = date_from_filename)
-# })
-# 
-# # Alle DataFrames zusammenführen
-# final_data <- bind_rows(list_data)
-# 
-# # Größe des DataFrames in MB berechnen
-# dataframe_size <- object.size(final_data) / (1024^2)
-# print(paste("Die Größe des DataFrames ist:", dataframe_size, "MB"))
-# 
-# # Temporären Ordner löschen, wenn er nicht mehr benötigt wird
-# unlink(temp_dir, recursive = TRUE)
-
-```
-```{r}
-# # Pfad zur ZIP-Datei
-# zip_path <- "./data/csse_covid_19_daily_reports.zip"
-# 
-# # Temporären Ordner für das Entpacken der ZIP-Datei erstellen
-# temp_dir <- tempfile()
-# dir.create(temp_dir)
-# 
-# # ZIP-Datei entpacken
-# unzip(zip_path, exdir = temp_dir)
-# 
-# # Überprüfen, ob Dateien entpackt wurden
-# unpacked_files <- list.files(temp_dir)
-# print(unpacked_files)
-
-```
-```{r}
-# 
-# # Pfad zur ZIP-Datei
-# zip_path <- "./data/csse_covid_19_daily_reports.zip"
-# 
-# # Temporären Ordner für das Entpacken der ZIP-Datei erstellen
-# temp_dir <- tempfile()
-# dir.create(temp_dir)
-# 
-# # ZIP-Datei entpacken
-# unzip(zip_path, exdir = temp_dir)
-# 
-# # Unterordner im entpackten Verzeichnis finden
-# sub_dirs <- list.dirs(temp_dir, full.names = TRUE, recursive = FALSE)
-# if (length(sub_dirs) == 0) {
-#   stop("Kein Unterordner im ZIP-Archiv gefunden.")
-# }
-# sub_dir <- sub_dirs[1]
-# 
-# # Alle CSV-Dateien im Unterordner auflisten
-# files <- list.files(sub_dir, pattern = "\\.csv$", full.names = TRUE)
-# 
-# # Fortschrittsbalken initialisieren
-# pboptions(type = "timer")
-# 
-# # Funktion, um das Datum aus dem Dateinamen zu extrahieren
-# extract_date <- function(file_name) {
-#   date_part <- gsub(".*(\\d{2}-\\d{2}-\\d{4}).*", "\\1", basename(file_name))
-#   as.Date(date_part, format="%m-%d-%Y")
-# }
-# 
-# # Funktion, um die Daten zu lesen und zu bereinigen
-# read_and_clean <- function(file) {
-#   data <- read_csv(file, show_col_types = FALSE)
-#   date_from_filename <- extract_date(file)
-#   if (is.na(date_from_filename)) {
-#     stop(paste("Datumskonvertierung fehlgeschlagen für Datei:", file))
-#   }
-#   # Konvertieren Sie alle Datum-/Zeit-Spalten in das gleiche Format, z.B. als character
-#   data$Last_Update <- as.character(data$Last_Update)
-#   mutate(data, Datum = date_from_filename)
-# }
-# 
-# # Daten einlesen und eine Datumsspalte hinzufügen
-# list_data <- pblapply(files, read_and_clean)
-# 
-# # Alle DataFrames zusammenführen
-# final_data <- bind_rows(list_data)
-# 
-# # Größe des DataFrames in MB berechnen
-# dataframe_size <- object.size(final_data) / (1024^2)
-# print(paste("Die Größe des DataFrames ist:", dataframe_size, "MB"))
-# 
-# # Temporären Ordner löschen, wenn er nicht mehr benötigt wird
-# unlink(temp_dir, recursive = TRUE)
-
-```
-```{r}
-# # Pfad zum Zip-Ordner
-# zip_path <- "./data/csse_covid_19_daily_reports.zip"
-# 
-# # Entpacke den Zip-Ordner in ein temporäres Verzeichnis
-# temp_dir <- tempdir()
-# unzip(zip_path, exdir = temp_dir)
-# 
-# # Liste aller CSV-Dateien im Unterordner des entpackten Zip-Ordners
-# files <- list.files(path = temp_dir, pattern = "\\.csv$", recursive = TRUE, full.names = TRUE)
-# 
-# # Funktion, um das Datum aus dem Dateinamen zu extrahieren
-# extract_date_from_filename <- function(filename) {
-#   date_part <- gsub(".*(\\d{2}-\\d{2}-\\d{4}).csv", "\\1", basename(filename))
-#   as.Date(date_part, format = "%d-%m-%Y")
-# }
-# 
-# # Funktion, um eine einzelne Datei zu lesen und das Datum hinzuzufügen
-# read_csv_with_date <- function(file) {
-#   df <- read_csv(file, col_types = cols())
-# 
-#   # Überprüfen, ob die Spalte 'Last Update' existiert und keine leeren Werte hat
-#   if (Last_Update %in% names(df) && nrow(df) > 0) {
-#     df <- df %>% mutate(Last_Update = as.character(Last_Update))
-#   } else {
-#     warning(paste("Spalte 'Last Update' fehlt oder ist leer in Datei:", file))
-#   }
-# 
-#   date <- extract_date_from_filename(file)
-#   df$date <- date
-#   return(df)
-# }
-# 
-# # read_csv_with_date <- function(file) {
-# #   # Bestimmen der Spalten, die gelesen werden sollen. 'Last Update' wird übersprungen
-# #   col_types <- cols(`Last Update` = col_skip())
-# #   df <- read_csv(file, col_types = col_types)
-# #   
-# #   date <- extract_date_from_filename(file)
-# #   df$date <- date
-# #   return(df)
-# # }
-# 
-# # Lese alle Dateien und füge sie zusammen, zeige Fortschrittsbalken an
-# all_data <- pblapply(files, read_csv_with_date) %>% bind_rows()
-# 
-# # Größe des Dataframes in MB ausgeben
-# dataframe_size <- object.size(all_data) / (1024^2)
-# print(paste("Größe des Dataframes:", dataframe_size, "MB"))
-# 
-# # Das resultierende Dataframe anzeigen (optional)
-# print(all_data)
-# 
-# # Aufräumen und temporäres Verzeichnis löschen
-# unlink(temp_dir, recursive = TRUE)
-```
-
 Da sich das Einlesen mehrerer csv-Dateien aus einem Zip-Ordner und dem Zusammenführen in ein einziges Data Frame in R schwierig gestatltet, wird dieser Teil der Aufgabe mit Python gelöst. Nach dem Einlesen wird das Data Frame auf die nötigen Spalten gekürzt und in eine csv-Datei abgespeichert. Diese neue csv-Datei kann nun mit R eingelesen und weiterverarbeitet werden.
 ```{r}
 # Einlesen der csv-Datei
@@ -210,7 +40,7 @@ dataframe_size1 <- object.size(df) / (1024^2)
 print(paste("Größe des Dataframes:", dataframe_size1, "MB"))
 
 ```
-Eine Übersicht über das Data Frame verschaffen.
+Eine Übersicht über das Data Frame verschaffen und wo nötig, Datenformate anpassen
 ```{r}
 head(df)
 ```
@@ -297,7 +127,11 @@ Da die Provinz-Level aktuell nicht interessieren sollen die Erkrankungs- und Tod
 ```{r}
 df <- df %>% 
   group_by(Date, Country_Region) %>% 
-  summarise(Confirmed = sum(Confirmed, na.rm = TRUE), Deaths = sum(Deaths, na.rm = TRUE)) %>% 
+  summarise(
+            Confirmed = sum(Confirmed, na.rm = TRUE), 
+            Deaths = sum(Deaths, na.rm = TRUE),
+            .groups = "drop"
+  ) %>% 
   ungroup()
 
 dataframe_size4 <- object.size(df) / (1024^2)
@@ -319,7 +153,7 @@ unique_countries <- df %>%
   arrange(Country_Region) %>% 
   pull(Country_Region)
 
-print(unique_countries)
+head(unique_countries)
 ```
 Es wird versucht, mittels Distanzmatrix ähnliche Versionen der Länder zu finden.
 ```{r}
@@ -329,7 +163,7 @@ threshold <- nchar(unique_countries) * 0.3
 similar_countries <- which(distances < threshold, arr.ind = TRUE)
 similar_countries <- similar_countries[similar_countries[,1] != similar_countries[,2], ]
 similar_country_pairs <- unique(t(apply(similar_countries, 1, function(idx) unique_countries[idx])))
-print(similar_country_pairs)
+head(similar_country_pairs)
 ```
 Erstellen einer Funktion für diesen Ablauf.
 ```{r}
@@ -351,7 +185,7 @@ get_similar_text_pairs <- function(df, threshold_num) {
 ```
 Test der Funktion
 ```{r}
-print(get_similar_text_pairs(df, 0.3))
+head(get_similar_text_pairs(df, 0.3))
 ```
 
 Anhand dieser Übersicht kann ein Name-Mapping durchgeführt werden. Damit wird mittels einer Mapping-Tabelle mit dem Format 'Alter Name' = 'Neuer Name' das Land umbenannt.
@@ -385,7 +219,7 @@ df <- df %>%
 
 Es wird nochmals überprüft, ob die Länder immer noch in verschiedenen Versionen vorhanden sind.
 ```{r}
-print(get_similar_text_pairs(df, 0.35))
+head(get_similar_text_pairs(df, 0.35))
 ```
 neues Mapping
 ```{r}
@@ -430,6 +264,10 @@ df <- df %>%
   mutate(Confirmed_Reported = Confirmed - lag(Confirmed, default = 0),
          Deaths_Reported = Deaths - lag(Deaths, default = 0))
 ```
+```{r}
+# Check
+df %>% filter(Country_Region == 'Switzerland') %>% arrange(Date)
+```
 Die Daten enthalten einige sprunghafte Änderungen (aufgrund von Konventionsänderungen, Fehlern,
 etc.), was teilweise zu stark negativen Werten in der Anzahl der neuen Fälle führt. Ersetze als einfache
 erste Strategie einfach mal alle negativen Werte mit Null.
@@ -440,6 +278,28 @@ df <- df %>%
   mutate(Deaths_Reported = ifelse(Deaths_Reported >= 0, Deaths_Reported, 0))
 
 ```
+```{r}
+# Check
+sum(df$Confirmed_Reported<0, na.rm = TRUE)
+```
+```{r}
+cases_chf <- df %>% 
+        filter(Country_Code == "CHE")
+date_seq <- seq(min(cases_chf$Date), max(cases_chf$Date), by="day")
+
+df_plot <- data.frame(Date = date_seq) %>% 
+  left_join(cases_chf, by = "Date")
+
+ggplot(df_plot, aes(x = Date, y = Cases_per_10000)) +
+  geom_line() +
+  labs(
+    title = "COVID-19 Fälle über die Zeit",
+    x = "Datum",
+    y = "Neue Fälle"
+  ) +
+  theme_minimal()
+```
+
 ### 9. Anreicherung mit Zusatzinformationen
 
 Nur mit absoluten Zahlen ist es schwierig, einzelne Länder miteinander zu vergleichen, da sie enorm
@@ -491,6 +351,7 @@ df <- right_join(df, population_data, by = c("Country_Code" = "iso3c"))
 df <- df %>% 
   rename(pop_total = SP.POP.TOTL)
 ```
+
 
 ### 10. Berechnung relativer täglicher Fallzahlen
 Berechne nun die relativen täglichen Neuerkrankungen und neuen Todesfälle pro 10’000 Personen der
@@ -586,7 +447,3 @@ fig <- df_fixed_date %>%
 
 fig
 ```
-
-Die Karte soll so interaktiv gestaltet werden, dass alle Daten angezeigt und ausgewählt werden können.
-
-
