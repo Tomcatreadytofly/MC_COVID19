@@ -1,6 +1,6 @@
 ---
 title: "MC COVID-19"
-# output: html_notebook
+output: html_notebook
 ---
 
 ```{r}
